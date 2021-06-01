@@ -1,0 +1,35 @@
+{
+  "name": "domain-migration-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=12.0.0 <13",
+    "npm": ">=6.0.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "migrate-legacy-data": "node migration.js",
+    "db-migrate-ci": "cd database; db-migrate up"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kpoke/domain-migration-scripts.git"
+  },
+  "author": "Greenstand Engineers",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Kpoke/domain-migration-scripts/issues"
+  },
+  "homepage": "https://github.com/Kpoke/domain-migration-scripts#readme",
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "knex": "^0.95.6",
+    "pg": "^7.4.0",
+    "pg-query-stream": "^4.1.0",
+    "progress": "^2.0.3"
+  },
+  "devDependencies": {
+    "db-migrate-pg": "^1.2.2",
+    "expect-runtime": "^0.10.1"
+  }
+}
