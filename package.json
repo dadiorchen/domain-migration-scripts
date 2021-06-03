@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "migrate-legacy-data": "node migration.js",
+    "migrate-legacy-data": "node tree_migration_milestone1.js",
     "db-migrate-ci": "cd database; db-migrate up"
   },
   "repository": {
