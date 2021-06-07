@@ -19,9 +19,8 @@ async function migrate() {
     const attributes_formatter = (attributes) => {
       if (attributes.length <= 0) return null;
       const attributes_in_json_format = { entries: [] };
-      for (const { key, value } of attributes) {
-        const new_entry = { key, value };
-        attributes_in_json_format.entries.push(new_entry);
+      for (let entry of attributes) {
+        attributes_in_json_format.entries.push(entry);
       }
     };
 
@@ -87,10 +86,6 @@ async function migrate() {
         await trx.table("field_data.raw_capture").insert(raw_capture_to_insert);
 
         // map_feature.raw_capture_feature
-        const columns_to_insert = [
-          ...Object.keys(raw_capture_feature_to_insert),
-          "location",
-        ];
         const { lon, lat } = raw_capture_feature_to_insert;
         const values_to_insert = [
           ...Object.values(raw_capture_feature_to_insert),
@@ -100,12 +95,20 @@ async function migrate() {
           `
           INSERT INTO map_features.raw_capture_feature 
           (
-            ${columns_to_insert.join(",")}
+            id,
+            attributes,
+            capture_taken_at,
+            created_at,
+            device_identifier,
+            field_user_id,
+            field_username,
+            lat,
+            lon,
+            updated_at,
+            location
           )
-          VALUES (${values_to_insert
-            .map(() => "?")
-            .join(",")},ST_PointFromText(?, 4326))`,
-          [...values_to_insert, 'POINT(' + lon + ' ' + lat + ')']
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,ST_PointFromText(?, 4326))`,
+          [...values_to_insert, "POINT(" + lon + " " + lat + ")"]
         );
         trx.commit();
         bar.tick();
