@@ -8,8 +8,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "migrate-legacy-data": "node tree_migration_milestone1.js",
-    "db-migrate-ci": "cd database; db-migrate up"
+    "migrate-raw-captures": "node field_data_raw_captures_migration.js",
+    "db-migrate-ci": "cd database; db-migrate up",
+    "eslint": "eslint --report-unused-disable-directives ."
   },
   "repository": {
     "type": "git",
@@ -23,13 +24,22 @@
   "homepage": "https://github.com/Kpoke/domain-migration-scripts#readme",
   "dependencies": {
     "dotenv": "^10.0.0",
-    "knex": "^0.95.6",
-    "pg": "^8.6.0",
+    "knex": "^0.95.13",
+    "pg": "^8.7.1",
     "pg-query-stream": "^4.1.0",
-    "progress": "^2.0.3"
+    "progress": "^2.0.3",
+    "uuid": "^8.3.2",
+    "uuid-by-string": "^3.0.7"
   },
   "devDependencies": {
     "db-migrate-pg": "^1.2.2",
-    "expect-runtime": "^0.10.1"
+    "eslint": "^8.22.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "expect-runtime": "^0.10.1",
+    "prettier": "^2.7.1"
   }
 }
