@@ -51,13 +51,7 @@ async function migrate() {
         const planter_identifier = planter.phone ?? planter.email;
         let { device_identifier } = tree;
 
-        if (device_identifier) {
-          device = await trx
-            .select()
-            .table('public.devices')
-            .where('android_id', device_identifier)
-            .first();
-        } else if (tree.device_id) {
+        if (tree.device_id) {
           device = await trx
             .select()
             .table('public.devices')
@@ -65,8 +59,14 @@ async function migrate() {
             .first();
 
           device_identifier = device.android_id;
+        } else if (device_identifier) {
+          device = await trx
+            .select()
+            .table('public.devices')
+            .where('android_id', device_identifier)
+            .first();
         } else {
-          // get the device_info from the planter_registrations table??? pick the latest planter_registration???
+          // add a dummy device and link with the tree
           throw new Error('device not associated with tree');
         }
 
