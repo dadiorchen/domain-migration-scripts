@@ -2,6 +2,7 @@ require('dotenv').config();
 const ProgressBar = require('progress');
 const { Writable } = require('stream');
 const Chance = require('chance');
+const uuid = require('uuid');
 
 const ws = Writable({ objectMode: true });
 const { sourceDB, targetDB } = require('../database/knex');
@@ -36,29 +37,13 @@ async function migrate() {
 
   const trx = await targetDB.transaction();
 
+  // used to track already created planters in cases where a planter has more than one tree
+  const existingPlanterRecord = {};
+  const existingPlanterRegistrationsRecord = {};
+
   ws._write = async (tree, enc, next) => {
     try {
-      const existingTree = await trx
-        .select()
-        .table('trees')
-        .where('id', tree.id)
-        .first();
-
-      if (existingTree?.id) {
-        bar.tick();
-        if (bar.complete) {
-          await trx.commit();
-          console.log('Migration Complete');
-          process.exit();
-        }
-        return next();
-      }
-
-      const planterPhotoUrl = chance.url({
-        domain: 'https://picsum.photos',
-        path: '2000',
-        extensions: ['jpg'],
-      });
+      const planterPhotoUrl = 'https://picsum.photos/2000.jpg';
       const firstName = chance.first();
       const lastName = chance.last();
       const email = chance.email();
@@ -76,53 +61,91 @@ async function migrate() {
         .where('planter_id', tree.planter_id)
         .orderBy('created_at', 'desc');
 
-      const existingPlanter = await trx
-        .select()
-        .table('public.planter')
-        .where('id', planter.id)
-        .first();
-
-      let createdPlanter;
-
-      if (!existingPlanter?.id) {
-        createdPlanter = await trx
+      let newPlanterId;
+      let planterEmail;
+      // check if planter has been moved
+      if (existingPlanterRecord[tree.planter_id]) {
+        const newPlanter = await trx
+          .select('id', 'email')
+          .table('public.planter')
+          .where('id', existingPlanterRecord[tree.planter_id])
+          .first();
+        newPlanterId = newPlanter.id;
+        planterEmail = newPlanter.email;
+      } else {
+        const planterObject = { ...planter };
+        delete planterObject.id;
+        const createdPlanter = await trx
           .insert(
             {
-              ...planter,
+              ...planterObject,
               first_name: firstName,
               last_name: lastName,
               email,
               phone,
+              image_url: planterPhotoUrl,
+              person_id: null,
+              organization: null,
             },
             ['id'],
           )
           .into('planter')
           .returning('id');
+
+        newPlanterId = createdPlanter[0];
+        existingPlanterRecord[planter.id] = newPlanterId;
+
+        const planterRegistrationsObject = [];
+
+        for (const p of planter_registrations) {
+          const pCopy = { ...p };
+          delete pCopy.id;
+          if (!existingPlanterRegistrationsRecord[p.id]) {
+            const newLat = +tree.lat + 0.005;
+            const newLon = +tree.lon + 0.005;
+            planterRegistrationsObject.push({
+              ...pCopy,
+              first_name: firstName,
+              last_name: lastName,
+              email,
+              phone,
+              planter_id: newPlanterId,
+              ...(p.organization && { organization: chance.company() }),
+              lat: newLat,
+              lon: newLon,
+              geom: targetDB.raw(
+                `ST_PointFromText('POINT(${newLon} ${newLat})', 4326)`,
+              ),
+            });
+            existingPlanterRegistrationsRecord[p.id] = 'done';
+          }
+        }
+
+        await trx
+          .insert(planterRegistrationsObject)
+          .into('planter_registrations')
+          .onConflict()
+          .ignore();
       }
 
-      const planterRegistrationsObject = planter_registrations.map((p) => ({
-        ...p,
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone,
-        planter_id: existingPlanter?.id || createdPlanter[0].id,
-      }));
-
-      await trx
-        .insert(planterRegistrationsObject)
-        .into('planter_registrations')
-        .onConflict()
-        .ignore();
-
+      const treeObject = { ...tree };
+      delete treeObject.id;
+      const newLat = +tree.lat + 0.005;
+      const newLon = +tree.lon + 0.005;
       const createdTree = await trx
         .insert(
           {
-            ...tree,
+            ...treeObject,
+            lat: newLat,
+            lon: newLon,
+            estimated_geometric_location: targetDB.raw(
+              `ST_PointFromText('POINT(${newLon} ${newLat})', 4326)`,
+            ),
             planter_photo_url: planterPhotoUrl,
-            planter_id: existingPlanter.id || createdPlanter[0].id,
+            planter_id: newPlanterId,
             approved: false,
-            planter_identifier: email,
+            planter_identifier: planterEmail || email,
+            uuid: uuid.v4(),
           },
           ['id'],
         )
@@ -134,9 +157,11 @@ async function migrate() {
         .where('tree_id', +tree.id);
 
       if (treeAttributes.length) {
-        await trx.insert(
-          treeAttributes.map((t) => ({ ...t, tree_id: createdTree[0].id })),
-        );
+        await trx
+          .insert(
+            treeAttributes.map((t) => ({ ...t, tree_id: createdTree[0].id })),
+          )
+          .insert('public.tree_attributes');
       }
 
       bar.tick();
@@ -146,6 +171,7 @@ async function migrate() {
         process.exit();
       }
     } catch (e) {
+      console.log(e);
       console.log(`Error processing tree id ${tree.id} ${e}`);
       await trx.rollback();
       process.exit(1);

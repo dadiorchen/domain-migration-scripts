@@ -9,9 +9,7 @@ const createSession = async (
     device_configuration_id: deviceConfigurationId,
     originating_wallet_registration_id: walletRegistrationId,
     organization,
-    // organization_id, //should this be populated ?? gotten from ??
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   };
 
   const existingSession = await trx
@@ -20,7 +18,7 @@ const createSession = async (
     .where('id', sessionId)
     .first();
 
-  if (Object.keys(existingSession).length) {
+  if (existingSession) {
     return existingSession.id;
   }
 

@@ -3,13 +3,14 @@ const ProgressBar = require('progress');
 const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
-const { sourceDB, targetDB } = require('../database/knex');
+const { knex } = require('../database/knex');
+const createDeviceConfiguration = require('./helper/createDeviceConfiguration');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM devices`;
+  const base_query_string = `SELECT * FROM public.devices`;
 
-  const rowCountResult = await sourceDB.select(
-    sourceDB.raw(`count(1) from (${base_query_string}) as src`),
+  const rowCountResult = await knex.select(
+    knex.raw(`count(1) from (${base_query_string}) as src`),
   );
   console.log(`Migrating ${+rowCountResult[0].count} records`);
 
@@ -18,11 +19,11 @@ async function migrate() {
     total: +rowCountResult[0].count,
   });
 
-  const trx = await targetDB.transaction();
+  const trx = await knex.transaction();
 
   ws._write = async (device, enc, next) => {
     try {
-      await trx('devices').insert(device);
+      await createDeviceConfiguration(device, trx);
 
       bar.tick();
       if (bar.complete) {
@@ -39,7 +40,7 @@ async function migrate() {
     next();
   };
 
-  const query_stream = sourceDB.raw(`${base_query_string}`).stream();
+  const query_stream = knex.raw(`${base_query_string}`).stream();
   query_stream.pipe(ws);
 }
 

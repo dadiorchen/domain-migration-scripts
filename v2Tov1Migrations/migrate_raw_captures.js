@@ -3,39 +3,29 @@ const ProgressBar = require('progress');
 const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
-const { knex } = require('./database/knex');
-const createWalletRegistration = require('./helper/createWalletRegistration');
+const { knex } = require('../database/knex');
+const createCorrespondingWalletRegistration = require('./helper/createCorrespondingWalletRegistration');
 const createDeviceConfiguration = require('./helper/createDeviceConfiguration');
 const createRawCapture = require('./helper/createRawCapture');
-const createTreetrackerCapture = require('./helper/createTreetrackerCapture');
 const createSession = require('./helper/createSession');
 
 async function migrate() {
   try {
-    // VALID ??
     const base_query_string = `select t.* from public.trees t left join field_data.raw_capture r on t.uuid = r.id::text 
-      where r.id is null and t.active = true and (t.device_identifier is not null or t.device_id is not null) 
-      and t.image_url is not null limit 1`;
+      where r.id is null and t.image_url is not null limit 1555`;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );
     console.log(`Migrating ${+rowCountResult[0].count} records`);
 
     const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
-      width: 20,
+      width: 100,
       total: +rowCountResult[0].count,
     });
 
     const trx = await knex.transaction();
     ws._write = async (tree, enc, next) => {
       try {
-        console.log('tree', tree.id);
-
-        if (!tree.planter_identifier && !tree.planter_id) {
-          // very unlikely
-          throw new Error('Planter identifier does not exist for tree');
-        }
-
         const planter = await trx
           .select()
           .table('public.planter')
@@ -49,9 +39,9 @@ async function migrate() {
 
         let device = null;
         const planter_identifier = planter.phone ?? planter.email;
-        let { device_identifier } = tree;
+        let { device_identifier, device_id } = tree;
 
-        if (tree.device_id) {
+        if (device_id) {
           device = await trx
             .select()
             .table('public.devices')
@@ -65,22 +55,19 @@ async function migrate() {
             .table('public.devices')
             .where('android_id', device_identifier)
             .first();
-        } else {
-          // add a dummy device and link with the tree
-          throw new Error('device not associated with tree');
         }
 
         // WALLET REGISTRATION
-        const { walletRegistrationId, organization, growerAccountId } =
-          await createWalletRegistration(
+        const { walletRegistrationId, organization } =
+          await createCorrespondingWalletRegistration(
             {
               planter,
               planter_registrations,
               tree: {
                 planter_identifier,
                 device_identifier,
-                treePlanterPhoto: tree.planter_photo_url,
               },
+              growerAccountId: planter.grower_account_uuid,
             },
             trx,
           );
@@ -107,27 +94,7 @@ async function migrate() {
           .table('public.tree_attributes')
           .where('tree_id', +tree.id);
 
-        const rawCapture = await createRawCapture(
-          tree,
-          treeAttributes,
-          sessionId,
-          trx,
-        );
-
-        // TREETRACKER.CAPTURE
-        // if approved create capture in treetracker
-        // how to handle tree.approved=true and rejection_reason is not null ??
-        if (tree.approved && !tree.rejection_reason) {
-          await createTreetrackerCapture(
-            rawCapture,
-            tree,
-            treeAttributes,
-            deviceConfigurationId,
-            sessionId,
-            growerAccountId,
-            trx,
-          );
-        }
+        await createRawCapture(tree, treeAttributes, sessionId, trx);
 
         bar.tick();
         if (bar.complete) {
@@ -136,6 +103,7 @@ async function migrate() {
           process.exit();
         }
       } catch (e) {
+        console.log(e);
         console.log(`Error processing tree id ${tree.id} ${e}`);
         await trx.rollback();
         process.exit(1);

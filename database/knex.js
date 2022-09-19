@@ -1,7 +1,11 @@
 const expect = require('expect-runtime');
 
 const connection = process.env.DATABASE_URL;
-expect(connection).to.match(/^postgresql:\//);
+const postgresPattern = /^postgresql:\//;
+
+if (!postgresPattern.test(connection)) {
+  throw new Error('invalid database connection url received');
+}
 
 const knexConfig = {
   client: 'pg',

@@ -52,7 +52,7 @@ const createTreetrackerCapture = async (
     .orWhere('id', tree.uuid)
     .first();
 
-  if (Object.keys(existingCapture).length) {
+  if (existingCapture) {
     return existingCapture;
   }
 

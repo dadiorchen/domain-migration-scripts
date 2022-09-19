@@ -45,6 +45,7 @@ async function migrate() {
         process.exit();
       }
     } catch (e) {
+      console.log(e);
       console.log(`Error processing entity id ${entity.id} ${e}`);
       await trx.rollback();
       process.exit(1);

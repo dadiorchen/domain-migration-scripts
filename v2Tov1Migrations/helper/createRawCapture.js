@@ -23,6 +23,16 @@ const createRawCapture = async (tree, treeAttributes, sessionId, trx) => {
     });
   }
 
+  const { active, approved, rejection_reason } = tree;
+  let status = 'unprocessed';
+
+  if (!active && rejection_reason) {
+    // active is false and rejection_reason is not null
+    status = 'rejected';
+  } else if (active && !rejection_reason && approved) {
+    status = 'approved';
+  }
+
   const rawCapture = {
     id: tree.uuid,
     reference_id: tree.id,
@@ -32,11 +42,7 @@ const createRawCapture = async (tree, treeAttributes, sessionId, trx) => {
     gps_accuracy: tree.gps_accuracy,
     note: tree.note,
     extra_attributes: extra_attributes.entries.length ? extra_attributes : null,
-    status: tree.approved
-      ? 'approved'
-      : tree.rejection_reason
-      ? 'rejected'
-      : 'unprocessed',
+    status,
     rejection_reason: tree.rejection_reason,
     captured_at: tree.time_created,
     session_id: sessionId,
@@ -50,19 +56,14 @@ const createRawCapture = async (tree, treeAttributes, sessionId, trx) => {
   const existingRawCapture = await trx
     .select()
     .table('field_data.raw_capture')
-    .where('reference_id', tree.id)
-    .orWhere('id', tree.uuid)
+    .where('id', tree.uuid)
     .first();
 
-  if (Object.keys(existingRawCapture).length) {
-    // check if the capture's uuid and reference_id is equal to tree.uuid/tree.id
-    // if not update the uuid of the raw_capture can we afford that(primary key and all)???
+  if (existingRawCapture) {
     return existingRawCapture;
   }
 
   await trx.insert(rawCapture).into('field_data.raw_capture');
-
-  return rawCapture;
 };
 
 module.exports = createRawCapture;

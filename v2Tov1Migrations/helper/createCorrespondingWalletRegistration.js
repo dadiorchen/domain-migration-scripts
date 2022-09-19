@@ -1,20 +1,18 @@
-const convertStringToUuid = require('uuid-by-string');
-const createGrowerAccount = require('./createGrowerAccount');
+// Creates specific wallet registration needed by the particular raw-capture being migrated
 
-const createWalletRegistration = async (
+const convertStringToUuid = require('uuid-by-string');
+const noPlanterImage = require('./noPlanterImage');
+
+const createCorresspondingWalletRegistration = async (
   {
     planter,
     planter_registrations,
-    tree: { planter_identifier, device_identifier, treePlanterPhoto },
+    tree: { planter_identifier, device_identifier },
+    growerAccountId,
   },
   trx,
 ) => {
   const latestRegistration = planter_registrations[0];
-
-  const growerAccountId = await createGrowerAccount(
-    { planter, planter_registrations, treePlanterPhoto, planter_identifier },
-    trx,
-  );
 
   const walletRegistrationId = convertStringToUuid(
     device_identifier + planter_identifier,
@@ -27,7 +25,7 @@ const createWalletRegistration = async (
     .where('id', walletRegistrationId)
     .first();
 
-  if (Object.keys(existingWalletRegistration).length) {
+  if (existingWalletRegistration) {
     return {
       walletRegistrationId,
       organization: existingWalletRegistration.v1_legacy_organization,
@@ -38,10 +36,7 @@ const createWalletRegistration = async (
   const walletRegistrationToCreate = Object.freeze({
     id: walletRegistrationId,
     wallet: planter_identifier,
-    user_photo_url:
-      planter.image_url ||
-      treePlanterPhoto ||
-      'https://greenstand.org/fileadmin/02-graphics/12-externally-linked/no-planter-image.png',
+    user_photo_url: planter.image_url || noPlanterImage,
     grower_account_id: growerAccountId,
     first_name: latestRegistration.first_name,
     last_name: latestRegistration.last_name,
@@ -50,20 +45,17 @@ const createWalletRegistration = async (
     lat: latestRegistration.lat,
     lon: latestRegistration.lon,
     registered_at: latestRegistration.created_at,
-    v1_legacy_organization: latestRegistration.organization, // get this from the planter table?? organizaton or organization_id?? or planting_organization_id
+    v1_legacy_organization: latestRegistration.organization,
   });
 
-  // or migrate all planter registrations over???
-
-  await trx()
+  await trx
     .insert(walletRegistrationToCreate)
     .into('field_data.wallet_registration');
 
   return {
     walletRegistrationId,
     organization: walletRegistrationToCreate.v1_legacy_organization,
-    growerAccountId,
   };
 };
 
-module.exports = createWalletRegistration;
+module.exports = createCorresspondingWalletRegistration;
