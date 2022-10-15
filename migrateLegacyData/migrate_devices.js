@@ -22,7 +22,7 @@ async function migrate() {
 
   ws._write = async (device, enc, next) => {
     try {
-      await trx('devices').insert(device);
+      await trx('devices').insert(device).onConflict('id').ignore();
 
       bar.tick();
       if (bar.complete) {

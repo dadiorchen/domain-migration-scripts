@@ -33,6 +33,9 @@ async function migrate() {
           .where('id', rawCapture.reference_id)
           .first();
 
+        // @TODO
+        // migrate tree_tags as well
+
         await createCapture(rawCapture, tree);
 
         bar.tick();

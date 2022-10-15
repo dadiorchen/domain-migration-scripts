@@ -8,7 +8,10 @@ const createGrowerAccount = require('./helper/createGrowerAccount');
 const createWalletRegistrations = require('./helper/createWalletRegistrations');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.planter`;
+  const base_query_string = `SELECT * FROM public.planter 
+    where (email is not null or phone is not null) 
+    and grower_account_uuid is null
+  `;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -34,29 +37,31 @@ async function migrate() {
         return next();
       }
 
-      const planterRegistrations = await trx
-        .select()
-        .table('public.planter_registrations')
-        .where('planter_id', planter.id)
-        .orderBy('created_at', 'desc');
+      if (planter.email || planter.phone) {
+        const planterRegistrations = await trx
+          .select()
+          .table('public.planter_registrations')
+          .where('planter_id', planter.id)
+          .orderBy('created_at', 'desc');
 
-      const { id: growerAccountId, wallet } = await createGrowerAccount(
-        {
-          planter,
-          planterRegistrations,
-        },
-        trx,
-      );
+        const { id: growerAccountId, wallet } = await createGrowerAccount(
+          {
+            planter,
+            planterRegistrations,
+          },
+          trx,
+        );
 
-      await createWalletRegistrations(
-        {
-          planter,
-          planterRegistrations,
-          growerAccountId,
-          wallet,
-        },
-        trx,
-      );
+        await createWalletRegistrations(
+          {
+            planter,
+            planterRegistrations,
+            growerAccountId,
+            wallet,
+          },
+          trx,
+        );
+      }
 
       bar.tick();
       if (bar.complete) {

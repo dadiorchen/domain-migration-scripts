@@ -26,10 +26,10 @@ const createRawCapture = async (tree, treeAttributes, sessionId, trx) => {
   const { active, approved, rejection_reason } = tree;
   let status = 'unprocessed';
 
-  if (!active && rejection_reason) {
+  if ((!active && rejection_reason) || (!active && !approved)) {
     // active is false and rejection_reason is not null
     status = 'rejected';
-  } else if (active && !rejection_reason && approved) {
+  } else if (active && approved) {
     status = 'approved';
   }
 

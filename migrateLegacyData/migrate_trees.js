@@ -8,20 +8,10 @@ const ws = Writable({ objectMode: true });
 const { sourceDB, targetDB } = require('../database/knex');
 
 async function migrate() {
+  // modify where statement
   const base_query_string = `
     SELECT *
     FROM trees
-    WHERE ST_Intersects
-        ( 
-            estimated_geometric_location,
-            ST_MakeEnvelope (
-                -13.179818792268634,
-                8.443390029903528,
-                -13.184386594220998,
-                8.440816477775206,
-                4326
-            )::geography('POLYGON') 
-        )
     `;
 
   const rowCountResult = await sourceDB.select(
@@ -43,7 +33,7 @@ async function migrate() {
 
   ws._write = async (tree, enc, next) => {
     try {
-      const planterPhotoUrl = 'https://picsum.photos/2000.jpg';
+      const planterPhotoUrl = 'https://dummyimage.com/700';
       const firstName = chance.first();
       const lastName = chance.last();
       const email = chance.email();
@@ -86,6 +76,7 @@ async function migrate() {
               image_url: planterPhotoUrl,
               person_id: null,
               organization: null,
+              grower_account_uuid: null,
             },
             ['id'],
           )
@@ -124,12 +115,13 @@ async function migrate() {
         await trx
           .insert(planterRegistrationsObject)
           .into('planter_registrations')
-          .onConflict()
+          .onConflict('id')
           .ignore();
       }
 
       const treeObject = { ...tree };
       delete treeObject.id;
+      delete treeObject.sequence;
       const newLat = +tree.lat + 0.005;
       const newLon = +tree.lon + 0.005;
       const createdTree = await trx

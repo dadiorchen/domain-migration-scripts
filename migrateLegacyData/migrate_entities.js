@@ -2,6 +2,7 @@ require('dotenv').config();
 const ProgressBar = require('progress');
 const { Writable } = require('stream');
 const Chance = require('chance');
+const { v4: uuid } = require('uuid');
 
 const ws = Writable({ objectMode: true });
 const { sourceDB, targetDB } = require('../database/knex');
@@ -25,18 +26,24 @@ async function migrate() {
 
   ws._write = async (entity, enc, next) => {
     try {
-      await trx('entity').insert({
-        ...entity,
-        ...(entity.name && { name: chance.name() }),
-        ...(entity.first_name && { first_name: chance.first() }),
-        ...(entity.last_name && { last_name: chance.last() }),
-        ...(entity.email && { email: chance.email() }),
-        ...(entity.website && { website: chance.url() }),
-        ...(entity.wallet && { wallet: chance.string() }),
-        ...(entity.password && { password: chance.string() }),
-        ...(entity.salt && { salt: chance.string() }),
-        ...(entity.phone && { phone: chance.phone({ formatted: false }) }),
-      });
+      await trx('entity')
+        .insert({
+          ...entity,
+          ...(entity.name && { name: chance.name() }),
+          ...(entity.first_name && { first_name: chance.first() }),
+          ...(entity.last_name && { last_name: chance.last() }),
+          ...(entity.email && { email: chance.email() }),
+          ...(entity.website && { website: chance.url() }),
+          ...((entity.wallet || entity.wallet === '') && {
+            wallet: chance.string(),
+          }),
+          ...(entity.password && { password: chance.string() }),
+          ...(entity.salt && { salt: chance.string() }),
+          ...(entity.phone && { phone: chance.phone({ formatted: false }) }),
+          stakeholder_uuid: uuid(),
+        })
+        .onConflict('id')
+        .ignore();
 
       bar.tick();
       if (bar.complete) {
