@@ -8,19 +8,6 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     planterRegistrations[planterRegistrations.length - 1];
   const growerAccountId = uuid();
 
-  const existingGrowerAccountEmail = await trx
-    .select()
-    .table('treetracker.grower_account')
-    .where('wallet', planter.email)
-    .first();
-
-  if (existingGrowerAccountEmail) {
-    return {
-      id: existingGrowerAccountEmail.id,
-      wallet: existingGrowerAccountEmail.wallet,
-    };
-  }
-
   const existingGrowerAccountPhone = await trx
     .select()
     .table('treetracker.grower_account')
@@ -31,6 +18,19 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     return {
       id: existingGrowerAccountPhone.id,
       wallet: existingGrowerAccountPhone.wallet,
+    };
+  }
+
+  const existingGrowerAccountEmail = await trx
+    .select()
+    .table('treetracker.grower_account')
+    .where('wallet', planter.email)
+    .first();
+
+  if (existingGrowerAccountEmail) {
+    return {
+      id: existingGrowerAccountEmail.id,
+      wallet: existingGrowerAccountEmail.wallet,
     };
   }
 
