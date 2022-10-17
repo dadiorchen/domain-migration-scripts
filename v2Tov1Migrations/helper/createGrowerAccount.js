@@ -15,6 +15,12 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     .first();
 
   if (existingGrowerAccountPhone) {
+    if (!planter.grower_account_uuid) {
+      await trx('planter').where({ id: planter.id }).update({
+        grower_account_uuid: existingGrowerAccountPhone.id,
+      });
+    }
+
     return {
       id: existingGrowerAccountPhone.id,
       wallet: existingGrowerAccountPhone.wallet,
@@ -28,6 +34,12 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     .first();
 
   if (existingGrowerAccountEmail) {
+    if (!planter.grower_account_uuid) {
+      await trx('planter').where({ id: planter.id }).update({
+        grower_account_uuid: existingGrowerAccountEmail.id,
+      });
+    }
+
     return {
       id: existingGrowerAccountEmail.id,
       wallet: existingGrowerAccountEmail.wallet,
