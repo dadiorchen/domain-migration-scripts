@@ -48,7 +48,7 @@ const createCapture = async (rawCapture, tree, trx) => {
     session_id: rawCapture.session_id,
     grower_account_id: rawCapture.grower_account_id,
     planting_organization_id: plantingOrganizationId,
-    // species_id,
+    species_id, //get from herbarium API
     captured_at: rawCapture.captured_at,
   };
 

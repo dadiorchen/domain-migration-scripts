@@ -1,6 +1,7 @@
 const convertStringToUuid = require('uuid-by-string');
 
 const createDeviceConfiguration = async (device, trx) => {
+  // how to prevent v2 duplicates for already populates devices through bulk pack
   const device_identifier = device?.android_id || 'unknown';
   const deviceConfigToCreate = {
     id: convertStringToUuid(device_identifier),

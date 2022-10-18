@@ -8,42 +8,48 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     planterRegistrations[planterRegistrations.length - 1];
   const growerAccountId = uuid();
 
-  const existingGrowerAccountPhone = await trx
-    .select()
-    .table('treetracker.grower_account')
-    .where('wallet', planter.phone)
-    .first();
+  if (planter.phone) {
+    const existingGrowerAccountPhone = await trx
+      .select()
+      .table('treetracker.grower_account')
+      .where('wallet', planter.phone)
+      .first();
 
-  if (existingGrowerAccountPhone) {
-    if (!planter.grower_account_uuid) {
-      await trx('planter').where({ id: planter.id }).update({
-        grower_account_uuid: existingGrowerAccountPhone.id,
-      });
+    if (existingGrowerAccountPhone) {
+      if (!planter.grower_account_uuid) {
+        await trx('planter').where({ id: planter.id }).update({
+          grower_account_uuid: existingGrowerAccountPhone.id,
+        });
+      }
+
+      return {
+        id: existingGrowerAccountPhone.id,
+        wallet: existingGrowerAccountPhone.wallet,
+        alreadyExists: true,
+      };
     }
-
-    return {
-      id: existingGrowerAccountPhone.id,
-      wallet: existingGrowerAccountPhone.wallet,
-    };
   }
 
-  const existingGrowerAccountEmail = await trx
-    .select()
-    .table('treetracker.grower_account')
-    .where('wallet', planter.email)
-    .first();
+  if (planter.email) {
+    const existingGrowerAccountEmail = await trx
+      .select()
+      .table('treetracker.grower_account')
+      .where('wallet', planter.email)
+      .first();
 
-  if (existingGrowerAccountEmail) {
-    if (!planter.grower_account_uuid) {
-      await trx('planter').where({ id: planter.id }).update({
-        grower_account_uuid: existingGrowerAccountEmail.id,
-      });
+    if (existingGrowerAccountEmail) {
+      if (!planter.grower_account_uuid) {
+        await trx('planter').where({ id: planter.id }).update({
+          grower_account_uuid: existingGrowerAccountEmail.id,
+        });
+      }
+
+      return {
+        id: existingGrowerAccountEmail.id,
+        wallet: existingGrowerAccountEmail.wallet,
+        alreadyExists: true,
+      };
     }
-
-    return {
-      id: existingGrowerAccountEmail.id,
-      wallet: existingGrowerAccountEmail.wallet,
-    };
   }
 
   let organization_id = null;

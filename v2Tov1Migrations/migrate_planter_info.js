@@ -44,7 +44,11 @@ async function migrate() {
           .where('planter_id', planter.id)
           .orderBy('created_at', 'desc');
 
-        const { id: growerAccountId, wallet } = await createGrowerAccount(
+        const {
+          id: growerAccountId,
+          wallet,
+          alreadyExists,
+        } = await createGrowerAccount(
           {
             planter,
             planterRegistrations,
@@ -52,15 +56,17 @@ async function migrate() {
           trx,
         );
 
-        await createWalletRegistrations(
-          {
-            planter,
-            planterRegistrations,
-            growerAccountId,
-            wallet,
-          },
-          trx,
-        );
+        if (!alreadyExists) {
+          await createWalletRegistrations(
+            {
+              planter,
+              planterRegistrations,
+              growerAccountId,
+              wallet,
+            },
+            trx,
+          );
+        }
       }
 
       bar.tick();
