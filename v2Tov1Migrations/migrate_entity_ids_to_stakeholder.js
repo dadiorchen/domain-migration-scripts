@@ -28,11 +28,13 @@ async function migrate() {
         .where('stakeholder_uuid', stakeholder.id)
         .first();
 
-      await trx('stakeholder.stakeholder')
-        .where({ id: stakeholder.id })
-        .update({
-          entity_id: entity.id,
-        });
+      if (entity) {
+        await trx('stakeholder.stakeholder')
+          .where({ id: stakeholder.id })
+          .update({
+            entity_id: entity.id,
+          });
+      }
 
       bar.tick();
       if (bar.complete) {
