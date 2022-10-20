@@ -6,7 +6,7 @@ const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM stakeholder.stakeholder`;
+  const base_query_string = `SELECT * FROM stakeholder.stakeholder where entity_id is null`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),
