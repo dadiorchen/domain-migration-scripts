@@ -15,7 +15,8 @@ const createRawCapture = async (tree, treeAttributes, sessionId, trx) => {
     }
 
     if (key === 'rotation_matrix') {
-      rotation_matrix = value;
+      let matrixArray = value.split(',');
+      rotation_matrix = matrixArray.map((m) => +m);
     }
 
     extra_attributes.entries.push({

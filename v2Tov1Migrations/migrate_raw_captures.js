@@ -11,8 +11,9 @@ const createSession = require('./helper/createSession');
 
 async function migrate() {
   try {
-    const base_query_string = `select t.* from public.trees t left join field_data.raw_capture r on t.uuid = r.id::text 
-      where r.id is null and t.image_url is not null`;
+    // filter out trees with invalid planter_id
+    const base_query_string = `select t.* from public.trees t join planter p on t.planter_id = p.id left join field_data.raw_capture r on t.uuid = r.id::text 
+      where r.id is null and t.image_url is not null and (p.email is not null or p.phone is not null) limit 7000`;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );

@@ -38,14 +38,14 @@ const createCorresspondingWalletRegistration = async (
     wallet: planter_identifier,
     user_photo_url: planter.image_url || noPlanterImage,
     grower_account_id: growerAccountId,
-    first_name: latestRegistration.first_name,
-    last_name: latestRegistration.last_name,
-    phone: latestRegistration.phone,
-    email: latestRegistration.email,
-    lat: latestRegistration.lat,
-    lon: latestRegistration.lon,
-    registered_at: latestRegistration.created_at,
-    v1_legacy_organization: latestRegistration.organization,
+    first_name: latestRegistration?.first_name || planter.first_name,
+    last_name: latestRegistration?.last_name || planter.last_name,
+    phone: latestRegistration?.phone || planter.phone,
+    email: latestRegistration?.email || planter.email,
+    lat: latestRegistration?.lat || 0,
+    lon: latestRegistration?.lon || 0,
+    registered_at: latestRegistration?.created_at || new Date().toISOString(),
+    v1_legacy_organization: latestRegistration?.organization,
   });
 
   await trx
