@@ -11,7 +11,8 @@ const knexConfig = {
   client: 'pg',
   debug: process.env.NODE_LOG_LEVEL === 'debug',
   connection,
-  pool: { min: 0, max: 10 },
+  pool: { min: 0, max: 50 },
+  acquireConnectionTimeout: 300000,
 };
 
 const knex = require('knex')(knexConfig);
