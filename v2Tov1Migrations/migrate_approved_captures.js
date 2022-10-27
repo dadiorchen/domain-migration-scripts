@@ -17,11 +17,16 @@ async function migrate() {
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );
-    console.log(`Migrating ${+rowCountResult[0].count} records`);
+    const recordCount = +rowCountResult[0].count;
+    if (!recordCount) {
+      console.log('No record left to migrate');
+      process.exit(0);
+    }
+    console.log(`Migrating ${recordCount} records`);
 
     const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
       width: 100,
-      total: +rowCountResult[0].count,
+      total: recordCount,
     });
 
     const trx = await knex.transaction();
