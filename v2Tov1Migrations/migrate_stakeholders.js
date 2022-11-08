@@ -7,7 +7,8 @@ const { knex } = require('../database/knex');
 const createStakeholders = require('./helper/createStakeholders');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.entity`;
+  const base_query_string = `SELECT * FROM public.entity pe left join stakeholder.stakeholder s
+   on pe.stakeholder_uuid = s.id where s.id is null`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),

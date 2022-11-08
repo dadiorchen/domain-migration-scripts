@@ -7,7 +7,8 @@ const { knex } = require('../database/knex');
 const createTags = require('./helper/createTags.js');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.tag where active = true`;
+  const base_query_string = `SELECT * FROM public.tag pt left join treetracker.tag tt
+  on pt.uuid = tt.id where active = true and tt.id is null`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),

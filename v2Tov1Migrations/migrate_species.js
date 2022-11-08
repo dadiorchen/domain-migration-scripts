@@ -7,7 +7,8 @@ const { knex } = require('../database/knex');
 const createSpecies = require('./helper/createSpecies.js');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.tree_species where active = true`;
+  const base_query_string = `SELECT * FROM public.tree_species ts
+   left join herbarium.species h on ts.uuid = h.id where h.id is null and ts.active = true`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),

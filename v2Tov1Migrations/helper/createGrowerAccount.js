@@ -68,6 +68,7 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
 
   const growerAccountToCreate = {
     id: growerAccountId,
+    reference_id: planter.id,
     wallet: planter.phone ?? planter.email,
     organization_id,
     first_name: planter.first_name,

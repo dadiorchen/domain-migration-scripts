@@ -12,7 +12,10 @@ async function migrate() {
         select rc.*, s.device_configuration_id, wr.grower_account_id from field_data.raw_capture rc
         join field_data.session s on rc.session_id = s.id
         join field_data.wallet_registration wr on s.originating_wallet_registration_id = wr.id
-        where rc.status = 'approved';
+        join public.trees pt on rc.id::text = pt.uuid
+        left join treetracker.capture tc on rc.id = tc.id
+        where (rc.status = 'approved' and tc.id is null) or 
+        (rc.status != 'approved' and pt.active = true and pt.approved = true)
     `;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -38,10 +41,13 @@ async function migrate() {
           .where('id', rawCapture.reference_id)
           .first();
 
-        // @TODO
         // migrate tree_tags as well
+        const treeTags = await trx.raw(
+          `select t.uuid from public.tree_tag tt join tag t on tt.tag_id = t.id where tt.tree_id = ?`,
+          [+tree.id],
+        );
 
-        await createCapture(rawCapture, tree);
+        await createCapture(rawCapture, tree, trx, treeTags);
 
         bar.tick();
         if (bar.complete) {
@@ -62,6 +68,7 @@ async function migrate() {
     query_stream.pipe(ws);
   } catch (err) {
     console.log(err);
+    process.exit(1);
   }
 }
 

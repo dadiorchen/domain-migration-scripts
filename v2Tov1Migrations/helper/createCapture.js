@@ -1,4 +1,4 @@
-const createCapture = async (rawCapture, tree, trx) => {
+const createCapture = async (rawCapture, tree, trx, treeTags) => {
   const existingCapture = await trx
     .select()
     .table('treetracker.capture')
@@ -19,6 +19,17 @@ const createCapture = async (rawCapture, tree, trx) => {
       .first();
 
     plantingOrganizationId = org.stakeholder_uuid;
+  }
+
+  let speciesId = null;
+  if (tree.species_id) {
+    const species = await trx
+      .select()
+      .table('public.tree_species')
+      .where({ id: tree.species_id })
+      .first();
+
+    speciesId = species.uuid;
   }
 
   let lat = rawCapture.lat;
@@ -48,11 +59,25 @@ const createCapture = async (rawCapture, tree, trx) => {
     session_id: rawCapture.session_id,
     grower_account_id: rawCapture.grower_account_id,
     planting_organization_id: plantingOrganizationId,
-    species_id, //get from herbarium API
+    species_id: speciesId,
     captured_at: rawCapture.captured_at,
   };
 
   await trx.insert(captureToCreate).into('treetracker.capture');
+
+  for (const { uuid } of treeTags) {
+    await trx
+      .insert({ capture_id: captureToCreate.id, tag_id: uuid })
+      .into('treetracker.capture_tag');
+  }
+
+  // raw captures created before verify tool was moved to the microservices
+  if (rawCapture.status !== 'approved') {
+    await trx
+      .update('field_data.wallet_registration')
+      .set({ status: 'approved' })
+      .where({ id: rawCapture.id });
+  }
 };
 
 module.exports = createCapture;
