@@ -26,7 +26,7 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
         await trx('treetracker.grower_account')
           .where({ id: existingGrowerAccountPhone.id })
           .update({
-            reference_id: existingGrowerAccountPhone.id,
+            reference_id: planter.id,
           });
       }
 
@@ -56,7 +56,7 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
         await trx('treetracker.grower_account')
           .where({ id: existingGrowerAccountEmail.id })
           .update({
-            reference_id: existingGrowerAccountEmail.id,
+            reference_id: planter.id,
           });
       }
 
