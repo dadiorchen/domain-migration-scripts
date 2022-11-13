@@ -4,11 +4,11 @@ const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
-const createSpecies = require('./helper/createSpecies.js');
+const createTags = require('./helper/createTags.js');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.tree_species ts
-   left join herbarium.species h on ts.uuid = h.id where h.id is null and ts.active = true`;
+  const base_query_string = `SELECT pt.* FROM public.tag pt left join treetracker.tag tt
+  on pt.uuid = tt.id where active = true and tt.id is null`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -27,9 +27,9 @@ async function migrate() {
 
   const trx = await knex.transaction();
 
-  ws._write = async (species, enc, next) => {
+  ws._write = async (tag, enc, next) => {
     try {
-      await createSpecies(species, trx);
+      await createTags(tag, trx);
 
       bar.tick();
       if (bar.complete) {
@@ -39,7 +39,7 @@ async function migrate() {
       }
     } catch (e) {
       console.log(e);
-      console.log(`Error processing species id ${species.id} ${e}`);
+      console.log(`Error processing tag id ${tag.id} ${e}`);
       await trx.rollback();
       process.exit(1);
     }

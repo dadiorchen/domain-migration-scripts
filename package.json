@@ -8,7 +8,10 @@
   },
   "main": "index.js",
   "scripts": {
-    "migrate-raw-captures": "node field_data_raw_captures_migration.js",
+    "migrate-trees": "node v1Tov2Migrations/migrate_trees",
+    "migrate-captures": "node v1Tov2Migrations/migrate_approved_captures",
+    "migrate-stakeholders": "node v1Tov2Migrations/migrate_stakeholders",
+    "migrate-planters": "node v1Tov2Migrations/migrate_planter_info",
     "db-migrate-ci": "cd database; db-migrate up",
     "eslint": "eslint --report-unused-disable-directives ."
   },

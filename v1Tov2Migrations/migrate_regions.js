@@ -4,11 +4,10 @@ const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
-const createTags = require('./helper/createTags.js');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.tag pt left join treetracker.tag tt
-  on pt.uuid = tt.id where active = true and tt.id is null`;
+  const base_query_string = `SELECT pr.* FROM public.region pr left join regions.region rr on pr.region_uuid = rr.id 
+  where rr.id is null and pr.type_id = 2`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -27,9 +26,18 @@ async function migrate() {
 
   const trx = await knex.transaction();
 
-  ws._write = async (tag, enc, next) => {
+  ws._write = async (region, enc, next) => {
     try {
-      await createTags(tag, trx);
+      await trx
+        .insert({
+          id: region.region_uuid,
+          //   owner_id: 'ae7faf5d-46e2-4944-a6f9-5e65986b2e03',
+          // collection_id: '1042ee69-c961-4faf-bca8-0828990a7c87', // GRIDS
+          name: region.name || 'unknown',
+          properties: region.metadata,
+          shape: region.geom,
+        })
+        .into('regions.region');
 
       bar.tick();
       if (bar.complete) {
@@ -39,7 +47,7 @@ async function migrate() {
       }
     } catch (e) {
       console.log(e);
-      console.log(`Error processing tag id ${tag.id} ${e}`);
+      console.log(`Error processing region id ${region.id} ${e}`);
       await trx.rollback();
       process.exit(1);
     }

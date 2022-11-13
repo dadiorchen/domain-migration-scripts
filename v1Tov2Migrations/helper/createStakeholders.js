@@ -9,7 +9,7 @@ const createStakeholders = async (entity, trx) => {
   }
 
   let type = 'Person';
-  if (entity.type === 'o' || entity.type === 'O') {
+  if (entity.type.toLowerCase() === 'o') {
     type = 'Organization';
   }
 
@@ -24,6 +24,7 @@ const createStakeholders = async (entity, trx) => {
     website: entity.website,
     logo_url: entity.logo_url,
     map: entity.map,
+    entity_id: entity.id,
   };
 
   await trx.table('stakeholder.stakeholder').insert(stakeholder);

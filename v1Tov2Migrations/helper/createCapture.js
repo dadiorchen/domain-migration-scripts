@@ -2,7 +2,8 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
   const existingCapture = await trx
     .select()
     .table('treetracker.capture')
-    .where('id', rawCapture.id)
+    .where('reference_id', rawCapture.reference_id)
+    .orWhere('id', rawCapture.id)
     .first();
 
   if (existingCapture) {
@@ -46,7 +47,7 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
     ),
     gps_accuracy: rawCapture.gps_accuracy,
     morphology: tree.morphology,
-    // age, tree.age is a string
+    age: tree.age === 'over_two_years' ? 2 : 0,
     note: rawCapture.note,
     attributes: rawCapture.extra_attributes,
     domain_specific_data: tree.domain_specific_data,
@@ -73,9 +74,8 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
 
   // raw captures created before verify tool was moved to the microservices
   if (rawCapture.status !== 'approved') {
-    await trx
-      .update('field_data.wallet_registration')
-      .set({ status: 'approved' })
+    await trx('field_data.raw_capture')
+      .update({ status: 'approved' })
       .where({ id: rawCapture.id });
   }
 };

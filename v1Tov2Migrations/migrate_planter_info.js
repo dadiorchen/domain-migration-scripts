@@ -8,9 +8,10 @@ const createGrowerAccount = require('./helper/createGrowerAccount');
 const createWalletRegistrations = require('./helper/createWalletRegistrations');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM public.planter 
-    where (email is not null or phone is not null) 
-    and grower_account_uuid is null
+  const base_query_string = `SELECT pp.* FROM public.planter pp
+    left join treetracker.grower_account tg on pp.grower_account_uuid = tg.id
+    where (pp.email is not null or pp.phone is not null) 
+    and tg.id is null order by organization_id asc
   `;
 
   const rowCountResult = await knex.select(

@@ -90,6 +90,7 @@ async function migrate() {
             organization,
             walletRegistrationId,
             deviceConfigurationId,
+            organizationId: tree.planting_organization_id,
           },
           trx,
         );

@@ -22,6 +22,14 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
         });
       }
 
+      if (!existingGrowerAccountPhone.reference_id) {
+        await trx('treetracker.grower_account')
+          .where({ id: existingGrowerAccountPhone.id })
+          .update({
+            reference_id: existingGrowerAccountPhone.id,
+          });
+      }
+
       return {
         id: existingGrowerAccountPhone.id,
         wallet: existingGrowerAccountPhone.wallet,
@@ -42,6 +50,14 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
         await trx('planter').where({ id: planter.id }).update({
           grower_account_uuid: existingGrowerAccountEmail.id,
         });
+      }
+
+      if (!existingGrowerAccountEmail.reference_id) {
+        await trx('treetracker.grower_account')
+          .where({ id: existingGrowerAccountEmail.id })
+          .update({
+            reference_id: existingGrowerAccountEmail.id,
+          });
       }
 
       return {
@@ -89,6 +105,11 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
   };
 
   await trx.insert(growerAccountToCreate).into('treetracker.grower_account');
+  if (organization_id) {
+    await trx
+      .insert({ grower_account_id: growerAccountToCreate.id, organization_id })
+      .into('treetracker.grower_account_org');
+  }
 
   await trx('planter').where({ id: planter.id }).update({
     grower_account_uuid: growerAccountId,
