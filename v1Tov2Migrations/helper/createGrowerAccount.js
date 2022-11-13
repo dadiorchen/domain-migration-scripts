@@ -85,7 +85,7 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
   const growerAccountToCreate = {
     id: growerAccountId,
     reference_id: planter.id,
-    wallet: planter.phone ?? planter.email,
+    wallet: planter.phone || planter.email,
     organization_id,
     first_name: planter.first_name,
     last_name: planter.last_name,
@@ -104,6 +104,14 @@ const createGrowerAccount = async ({ planter, planterRegistrations }, trx) => {
     updated_at: new Date().toISOString(),
   };
 
+  console.log('\n\n\n');
+  console.log({ p: planter.phone, e: planter.email });
+  console.log('\n\n\n');
+  console.log({
+    wallet: growerAccountToCreate.wallet,
+    email: growerAccountToCreate.email,
+    phone: growerAccountToCreate.phone,
+  });
   await trx.insert(growerAccountToCreate).into('treetracker.grower_account');
   if (organization_id) {
     await trx

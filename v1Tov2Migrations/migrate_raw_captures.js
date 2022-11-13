@@ -44,7 +44,7 @@ async function migrate() {
           .orderBy('created_at', 'desc');
 
         let device = null;
-        const planter_identifier = planter.phone ?? planter.email;
+        const planter_identifier = planter.phone || planter.email;
         let { device_identifier, device_id } = tree;
 
         if (device_id) {
