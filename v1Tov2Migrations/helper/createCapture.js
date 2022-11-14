@@ -73,11 +73,12 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
   }
 
   // raw captures created before verify tool was moved to the microservices
-  if (rawCapture.status !== 'approved') {
-    await trx('field_data.raw_capture')
-      .update({ status: 'approved' })
-      .where({ id: rawCapture.id });
-  }
+  //TODO temp disable this, for testing
+  // if (rawCapture.status !== 'approved') {
+  //   await trx('field_data.raw_capture')
+  //     .update({ status: 'approved' })
+  //     .where({ id: rawCapture.id });
+  // }
 };
 
 module.exports = createCapture;
