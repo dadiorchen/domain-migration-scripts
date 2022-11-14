@@ -8,6 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "migrate-tags": "node v1Tov2Migrations/migrate_tags",
     "migrate-trees": "node v1Tov2Migrations/migrate_trees",
     "migrate-captures": "node v1Tov2Migrations/migrate_approved_captures",
     "migrate-stakeholders": "node v1Tov2Migrations/migrate_stakeholders",
