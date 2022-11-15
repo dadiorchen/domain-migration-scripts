@@ -47,12 +47,12 @@ async function migrate() {
           .first();
 
         // migrate tree_tags as well
-        const treeTags = await trx.raw(
-          `select t.uuid from public.tree_tag tt join tag t on tt.tag_id = t.id where tt.tree_id = ?`,
-          [+tree.id],
-        );
+        //const treeTags = await trx.raw(
+        //  `select t.uuid from public.tree_tag tt join tag t on tt.tag_id = t.id where tt.tree_id = ?`,
+        //  [+tree.id],
+        //);
 
-        await createCapture(rawCapture, tree, trx, treeTags.rows);
+        await createCapture(rawCapture, tree, trx, []);
 
         bar.tick();
         if (bar.complete) {
