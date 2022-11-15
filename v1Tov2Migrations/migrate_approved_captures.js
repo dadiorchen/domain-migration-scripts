@@ -19,7 +19,8 @@ async function migrate() {
         (rc.status = 'approved' and tc.id is null) or 
         (rc.status != 'approved' and pt.active = true and pt.approved = true)
         ) AND
-        ST_Contains((select geom from region where type_id = 10 and name = 'Sierra Leone'), pt.estimated_geometric_location)
+        ST_Contains((select geom from region where type_id = (select id from region_type where type = 'country') and name = 'Sierra Leone'), pt.estimated_geometric_location)
+
     `;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
