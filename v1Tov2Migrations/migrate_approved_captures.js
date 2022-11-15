@@ -14,8 +14,12 @@ async function migrate() {
         join field_data.wallet_registration wr on s.originating_wallet_registration_id = wr.id
         join public.trees pt on rc.id::text = pt.uuid
         left join treetracker.capture tc on rc.id = tc.id
-        where (rc.status = 'approved' and tc.id is null) or 
+        where 
+        (
+        (rc.status = 'approved' and tc.id is null) or 
         (rc.status != 'approved' and pt.active = true and pt.approved = true)
+        ) AND
+        ST_Contains((select geom from region where type_id = 10 and name = 'Sierra Leone'), pt.estimated_geometric_location)
     `;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
