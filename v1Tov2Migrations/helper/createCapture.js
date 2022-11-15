@@ -1,3 +1,5 @@
+const { v4: uuid } = require('uuid');
+
 const createCapture = async (rawCapture, tree, trx, treeTags) => {
   const existingCapture = await trx
     .select()
@@ -10,7 +12,7 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
     return existingCapture;
   }
 
-  let plantingOrganizationId = null;
+  let plantingOrganizationId = uuid();
 
   if (tree.planting_organization_id) {
     const org = await trx
