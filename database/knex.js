@@ -1,22 +1,30 @@
-const expect = require("expect-runtime");
-const connection = process.env.DATABASE_URL
-expect(connection).to.match(/^postgresql:\//);
-const urlregexp = /postgresql:\/\/(.+):(.+)@(.+):(\d+)\/(.+)\?ssl=true/g;
-const dbConnValues = [...connection.matchAll(urlregexp)][0];
-let knexConfig = {
-  client: "pg",
-  debug: process.env.NODE_LOG_LEVEL === "debug" ? true : false,
-  connection: {
-    host: dbConnValues[3],
-    user: dbConnValues[1],
-    password: dbConnValues[2],
-    database: dbConnValues[5],
-    port: dbConnValues[4],
-    ssl: { rejectUnauthorized: false }
-  },
-  pool: { min: 0, max: 10 },
+const expect = require('expect-runtime');
+
+const connection = process.env.DATABASE_URL;
+const postgresPattern = /^postgresql:\//;
+
+if (!postgresPattern.test(connection)) {
+  throw new Error('invalid database connection url received');
+}
+
+const knexConfig = {
+  client: 'pg',
+  debug: process.env.NODE_LOG_LEVEL === 'debug',
+  connection,
+  pool: { min: 0, max: 50 },
+  acquireConnectionTimeout: 300000,
 };
 
-const knex = require("knex")(knexConfig);
+const knex = require('knex')(knexConfig);
 
-module.exports = { knex };
+const sourceDB = require('knex')({
+  ...knexConfig,
+  connection: process.env.SOURCE_DB,
+});
+
+const targetDB = require('knex')({
+  ...knexConfig,
+  connection: process.env.TARGET_DB,
+});
+
+module.exports = { knex, sourceDB, targetDB };
