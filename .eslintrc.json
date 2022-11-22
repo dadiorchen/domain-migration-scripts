@@ -28,21 +28,22 @@
     ],
     "func-names": "off",
     "no-param-reassign": "error",
-    "consistent-return": "error",
-    "no-restricted-syntax": "error",
+    "consistent-return": "off",
+    "no-restricted-syntax": "off",
     "global-require": "off",
     "radix": "off",
     "no-await-in-loop": "off",
     "class-methods-use-this": "error",
     "no-return-await": "error",
     "no-new-wrappers": "error",
-    "prefer-destructuring": "error",
+    "prefer-destructuring": "warn",
     "no-shadow": "error",
     "import/order": "error",
     "no-unused-expressions": "error",
     "import/no-extraneous-dependencies": "error",
     "import/no-unresolved": "error",
     "no-plusplus": "error",
-    "no-continue": "off"
+    "no-continue": "off",
+    "no-console": "off"
   }
 }

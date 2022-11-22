@@ -4,7 +4,7 @@ const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
-const createTags = require('./helper/createTags.js');
+const createTags = require('./helper/createTags');
 
 async function migrate() {
   const base_query_string = `SELECT pt.* FROM public.tag pt left join treetracker.tag tt

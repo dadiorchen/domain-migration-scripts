@@ -19,7 +19,8 @@
     "migrate-stakeholders": "node v1Tov2Migrations/migrate_stakeholders",
     "migrate-planters": "node v1Tov2Migrations/migrate_planter_info",
     "db-migrate-ci": "cd database; db-migrate up",
-    "eslint": "eslint --report-unused-disable-directives ."
+    "eslint": "eslint --report-unused-disable-directives .",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
