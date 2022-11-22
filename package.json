@@ -24,14 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Kpoke/domain-migration-scripts.git"
+    "url": "git+https://github.com/Greenstand/domain-migration-scripts.git"
   },
   "author": "Greenstand Engineers",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/Kpoke/domain-migration-scripts/issues"
+    "url": "https://github.com/Greenstand/domain-migration-scripts/issues"
   },
-  "homepage": "https://github.com/Kpoke/domain-migration-scripts#readme",
+  "homepage": "https://github.com/Greenstand/domain-migration-scripts#readme",
   "dependencies": {
     "chance": "^1.1.8",
     "dotenv": "^10.0.0",
