@@ -24,7 +24,7 @@ jobs:
         run: npm ci
         working-directory: ${{ env.project-directory }}
       - name: run ESLint
-        run: npm run lint
+        run: npm run eslint
         working-directory: ${{ env.project-directory }}
 
   release:
