@@ -8,6 +8,11 @@
   },
   "main": "index.js",
   "scripts": {
+    "migrate-entity-ids": "node v1Tov2Migrations/migrate_entity_ids_to_stakeholder",
+    "migrate-devices": "node v1Tov2Migrations/migrate_device_configurations",
+    "migrate-raw-captures": "node v1Tov2Migrations/migrate_raw_captures",
+    "migrate-regions": "node v1Tov2Migrations/migrate_regions",
+    "migrate-species": "node v1Tov2Migrations/migrate_species",
     "migrate-tags": "node v1Tov2Migrations/migrate_tags",
     "migrate-trees": "node v1Tov2Migrations/migrate_trees",
     "migrate-captures": "node v1Tov2Migrations/migrate_approved_captures",
