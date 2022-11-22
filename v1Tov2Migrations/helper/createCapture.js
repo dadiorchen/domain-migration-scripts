@@ -53,8 +53,8 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
     note: rawCapture.note,
     attributes: rawCapture.extra_attributes,
     domain_specific_data: tree.domain_specific_data,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: rawCapture.captured_at,
+    updated_at: rawCapture.captured_at,
     estimated_geographic_location: trx.raw(
       `ST_PointFromText('POINT(${lon} ${lat})', 4326)`,
     ),
