@@ -11,8 +11,8 @@ const createTree = async (capture, trx, captureTags) => {
     return existingCapture;
   }
 
-  const lat = capture.lat;
-  const lon = capture.lon;
+  const {lat} = capture;
+  const {lon} = capture;
 
   const treeToCreate = {
     id: uuid(),

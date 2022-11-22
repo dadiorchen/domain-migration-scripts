@@ -1,8 +1,8 @@
-const createTags = async ({ tag_name, public, uuid }, trx) => {
+const createTags = async ({ tag_name, public: isPublic, uuid }, trx) => {
   const tagToCreate = {
     id: uuid,
     name: tag_name,
-    isPublic: public,
+    isPublic,
   };
 
   await trx

@@ -45,7 +45,8 @@ async function migrate() {
 
         let device = null;
         const planter_identifier = planter.phone || planter.email;
-        let { device_identifier, device_id } = tree;
+        let { device_identifier } = tree;
+        const { device_id } = tree;
 
         if (device_id) {
           device = await trx

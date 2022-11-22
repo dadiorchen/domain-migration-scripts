@@ -8,13 +8,19 @@
   },
   "main": "index.js",
   "scripts": {
+    "migrate-entity-ids": "node v1Tov2Migrations/migrate_entity_ids_to_stakeholder",
+    "migrate-devices": "node v1Tov2Migrations/migrate_device_configurations",
+    "migrate-raw-captures": "node v1Tov2Migrations/migrate_raw_captures",
+    "migrate-regions": "node v1Tov2Migrations/migrate_regions",
+    "migrate-species": "node v1Tov2Migrations/migrate_species",
     "migrate-tags": "node v1Tov2Migrations/migrate_tags",
     "migrate-trees": "node v1Tov2Migrations/migrate_trees",
     "migrate-captures": "node v1Tov2Migrations/migrate_approved_captures",
     "migrate-stakeholders": "node v1Tov2Migrations/migrate_stakeholders",
     "migrate-planters": "node v1Tov2Migrations/migrate_planter_info",
     "db-migrate-ci": "cd database; db-migrate up",
-    "eslint": "eslint --report-unused-disable-directives ."
+    "eslint": "eslint --report-unused-disable-directives .",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -37,6 +43,8 @@
     "uuid-by-string": "^3.0.7"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
     "db-migrate-pg": "^1.2.2",
     "eslint": "^8.22.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -45,6 +53,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "expect-runtime": "^0.10.1",
+    "husky": "^8.0.2",
     "prettier": "^2.7.1"
   }
 }

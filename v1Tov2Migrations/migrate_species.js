@@ -4,7 +4,7 @@ const { Writable } = require('stream');
 
 const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
-const createSpecies = require('./helper/createSpecies.js');
+const createSpecies = require('./helper/createSpecies');
 
 async function migrate() {
   const base_query_string = `SELECT ts.* FROM public.tree_species ts

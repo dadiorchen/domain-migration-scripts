@@ -33,8 +33,8 @@ const createCapture = async (rawCapture, tree, trx, treeTags) => {
     speciesId = species.uuid;
   }
 
-  let lat = rawCapture.lat;
-  let lon = rawCapture.lon;
+  const {lat} = rawCapture;
+  const {lon} = rawCapture;
 
   const captureToCreate = {
     id: rawCapture.id,

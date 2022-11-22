@@ -9,7 +9,7 @@ const createTree = require('./helper/createTree');
 async function migrate() {
   try {
     // filter out trees with invalid planter_id
-    const base_query_string = `select * from treetracker.capture where tree_id is null and length(note) > 4`; //length(note) > 4 is temporary
+    const base_query_string = `select * from treetracker.capture where tree_id is null and length(note) > 4`; // length(note) > 4 is temporary
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );
