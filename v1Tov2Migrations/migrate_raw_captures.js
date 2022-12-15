@@ -24,13 +24,13 @@ async function migrate() {
     }
     console.log(`Migrating ${recordCount} records`);
 
-    const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
+    const bar = new ProgressBar('Migrating [:bar] :percent :etas :current/:total (:rate)', {
       width: 100,
       total: recordCount,
     });
 
-    const trx = await knex.transaction();
     ws._write = async (tree, enc, next) => {
+      const trx = await knex.transaction();
       try {
         const planter = await trx
           .select()
@@ -103,9 +103,10 @@ async function migrate() {
 
         await createRawCapture(tree, treeAttributes, sessionId, trx);
 
+  	await trx.commit();
+
         bar.tick();
         if (bar.complete) {
-          await trx.commit();
           console.log('Migration Complete');
           process.exit();
         }
