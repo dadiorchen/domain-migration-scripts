@@ -8,8 +8,10 @@ const createCorrespondingWalletRegistration = require('./helper/createCorrespond
 const createDeviceConfiguration = require('./helper/createDeviceConfiguration');
 const createRawCapture = require('./helper/createRawCapture');
 const createSession = require('./helper/createSession');
+const Queue = require('./helper/Queue');
 
 async function migrate() {
+  const queue = Queue(10);
   try {
     // filter out trees with invalid planter_id
     const base_query_string = `select t.* from public.trees t join planter p on t.planter_id = p.id left join field_data.raw_capture r on t.uuid = r.id::text 
@@ -30,6 +32,7 @@ async function migrate() {
     });
 
     ws._write = async (tree, enc, next) => {
+      await queue.add(async ()=> {
       const trx = await knex.transaction();
       try {
         const planter = await trx
@@ -105,17 +108,19 @@ async function migrate() {
 
   	await trx.commit();
 
+      } catch (e) {
+        console.log(e);
+        console.log(`Error processing tree id ${tree.id} ${e}`);
+        await trx.rollback();
+        //process.exit(1);
+      }
+      }, () => {
         bar.tick();
         if (bar.complete) {
           console.log('Migration Complete');
           process.exit();
         }
-      } catch (e) {
-        console.log(e);
-        console.log(`Error processing tree id ${tree.id} ${e}`);
-        await trx.rollback();
-        process.exit(1);
-      }
+      })
       next();
     };
 
