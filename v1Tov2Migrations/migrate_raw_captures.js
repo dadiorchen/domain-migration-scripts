@@ -11,7 +11,7 @@ const createSession = require('./helper/createSession');
 const Queue = require('./helper/Queue');
 
 async function migrate() {
-  const queue = Queue(10);
+  const queue = Queue(50);
   try {
     // filter out trees with invalid planter_id
     const base_query_string = `select t.* from public.trees t join planter p on t.planter_id = p.id left join field_data.raw_capture r on t.uuid = r.id::text 

@@ -8,7 +8,7 @@ function Queue(size){
           await new Promise((resolve, reject) => {
             setTimeout(() => {
               resolve();
-            }, 100);
+            }, 20);
           });
         }
         if(queue > 0) {
