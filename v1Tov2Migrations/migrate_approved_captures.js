@@ -19,16 +19,10 @@ async function migrate() {
         (rc.status = 'approved' and tc.id is null) or 
         (rc.status != 'approved' and pt.active = true and pt.approved = true)
         ) AND
-        ---ST_Contains((select geom from region where type_id = (select id from region_type where type = 'country') and name = 'Sierra Leone'), pt.estimated_geometric_location)
-	 ST_Intersects
-	   ( pt.estimated_geometric_location
-	   , ST_MakeEnvelope ( -13.221380710601807-- xmin (min lng)
-		    , 8.377141284746365 -- ymin (min lat)
-		    , -13.238621950149538 -- xmax (max lng)
-		    , 8.366823985111315 -- ymax (max lat)
-		    , 4326 -- projection epsg-code
-		    )
-	   )
+	pt.planting_organization_id = 1642
+	order by pt.id asc
+	--offset 0
+	limit 10000
     `;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -40,8 +34,8 @@ async function migrate() {
     }
     console.log(`Migrating ${recordCount} records`);
 
-    const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
-      width: 100,
+    const bar = new ProgressBar('Migrating [:bar] :percent :etas :current/:total (:rate)', {
+      width: 40,
       total: recordCount,
     });
 
