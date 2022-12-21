@@ -19,7 +19,8 @@ async function migrate() {
         (rc.status = 'approved' and tc.id is null) or 
         (rc.status != 'approved' and pt.active = true and pt.approved = true)
         ) AND
-	pt.planting_organization_id = 1642
+	rc.reference_id != 2463005
+	--pt.planting_organization_id = 1642
 	order by pt.id asc
 	--offset 0
 	limit 10000
@@ -50,7 +51,7 @@ async function migrate() {
 
         // migrate tree_tags as well
         const treeTags = await trx.raw(
-          `select t.uuid from public.tree_tag tt join tag t on tt.tag_id = t.id where tt.tree_id = ?`,
+          `select distinct(t.uuid) from public.tree_tag tt join tag t on tt.tag_id = t.id where tt.tree_id = ?`,
           [+tree.id],
         );
 
