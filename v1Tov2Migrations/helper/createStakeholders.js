@@ -9,7 +9,7 @@ const createStakeholders = async (entity, trx) => {
   }
 
   let type = 'Person';
-  if (entity.type.toLowerCase() === 'o') {
+  if (entity.type?.toLowerCase() === 'o') {
     type = 'Organization';
   }
 
