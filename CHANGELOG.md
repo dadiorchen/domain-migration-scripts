@@ -1,3 +1,11 @@
+## [1.0.1](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.0...v1.0.1) (2023-02-02)
+
+
+### Bug Fixes
+
+* account for semantic release ([42b98cb](https://github.com/Greenstand/domain-migration-scripts/commit/42b98cbcda41e2dcadfdc47eccf4b4e01a784d2f))
+* update stakeholder migration ([67fca94](https://github.com/Greenstand/domain-migration-scripts/commit/67fca9491775bb1f342e960f5a23e6812ef46131))
+
 # 1.0.0 (2022-11-22)
 
 
