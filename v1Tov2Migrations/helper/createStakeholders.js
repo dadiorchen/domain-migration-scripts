@@ -1,13 +1,4 @@
 const createStakeholders = async (entity, trx) => {
-  const existingStakeholder = await trx
-    .table('stakeholder.stakeholder')
-    .where('id', '=', entity.stakeholder_uuid)
-    .first();
-
-  if (existingStakeholder) {
-    return existingStakeholder.id;
-  }
-
   let type = 'Person';
   if (entity.type?.toLowerCase() === 'o') {
     type = 'Organization';
@@ -27,13 +18,18 @@ const createStakeholders = async (entity, trx) => {
     entity_id: entity.id,
   };
 
-  await trx.table('stakeholder.stakeholder').insert(stakeholder);
+  await trx
+    .table('stakeholder.stakeholder')
+    .insert(stakeholder)
+    .onConflict('id')
+    .merge();
 
   const relations = await trx
     .table('entity_relationship')
     .select(
       'entity_relationship.type',
       'entity_relationship.role',
+      'entity_relationship.created_at',
       'entity.stakeholder_uuid as child_uuid',
     )
     .where('parent_id', '=', entity.id)
@@ -46,8 +42,14 @@ const createStakeholders = async (entity, trx) => {
         child_id: relationRow.child_uuid,
         type: relationRow.type,
         role: relationRow.role,
+        created_at: relationRow.created_at,
+        updated_at: relationRow.created_at,
       };
-      await trx.table('stakeholder.stakeholder_relation').insert(relation);
+      await trx
+        .table('stakeholder.stakeholder_relation')
+        .insert(relation)
+        .onConflict(['parent_id', 'child_id'])
+        .merge();
     }),
   );
   return entity.stakeholder_uuid;
