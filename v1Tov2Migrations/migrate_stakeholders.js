@@ -7,18 +7,7 @@ const { knex } = require('../database/knex');
 const createStakeholders = require('./helper/createStakeholders');
 
 async function migrate() {
-  // delete_stakeholders to account for updates made on the entity tables
-  const deleteStakeholdersQuery = `
-      DELETE FROM stakeholder.stakeholder_relation;
-      DELETE FROM stakeholder.stakeholder;
-  `;
-
-  await knex.raw(`${deleteStakeholdersQuery}`);
-
-  console.log(`Stakeholder records deleted`);
-
-  const base_query_string = `SELECT pe.* FROM public.entity pe left join stakeholder.stakeholder s
-   on pe.stakeholder_uuid = s.id where s.id is null`;
+  const base_query_string = `SELECT * FROM public.entity`;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),

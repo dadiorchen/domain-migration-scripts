@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "migrate-entity-ids": "node v1Tov2Migrations/migrate_entity_ids_to_stakeholder",
+    "migrate-stakeholder-relations": "node v1Tov2Migrations/migrate_stakeholder_relations",
     "migrate-devices": "node v1Tov2Migrations/migrate_device_configurations",
     "migrate-raw-captures": "node v1Tov2Migrations/migrate_raw_captures",
     "migrate-regions": "node v1Tov2Migrations/migrate_regions",

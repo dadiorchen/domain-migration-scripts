@@ -6,7 +6,21 @@ const ws = Writable({ objectMode: true });
 const { knex } = require('../database/knex');
 
 async function migrate() {
-  const base_query_string = `SELECT * FROM stakeholder.stakeholder where entity_id is null`;
+  const base_query_string = `
+    SELECT 
+      ssr.*, 
+      ssp.entity_id as parent_entity_id, 
+      ssc.entity_id as child_entity_id
+    FROM stakeholder.stakeholder_relation ssr
+    LEFT JOIN stakeholder.stakeholder ssp
+        ON ssr.parent_id = ssp.id
+    LEFT JOIN stakeholder.stakeholder ssc
+        ON ssr.child_id = ssc.id
+    LEFT JOIN entity_relationship er
+        ON ssp.entity_id = er.parent_id
+        AND ssc.entity_id = er.child_id
+    WHERE er.id is null
+  `;
 
   const rowCountResult = await knex.select(
     knex.raw(`count(1) from (${base_query_string}) as src`),
@@ -25,21 +39,18 @@ async function migrate() {
 
   const trx = await knex.transaction();
 
-  ws._write = async (stakeholder, enc, next) => {
+  ws._write = async (relation, enc, next) => {
     try {
-      const entity = await trx
-        .select()
-        .table('public.entity')
-        .where('stakeholder_uuid', stakeholder.id)
-        .first();
+      const { parent_entity_id, child_entity_id, created_at, type, role } =
+        relation;
 
-      if (entity) {
-        await trx('stakeholder.stakeholder')
-          .where({ id: stakeholder.id })
-          .update({
-            entity_id: entity.id,
-          });
-      }
+      await trx.table('public.entity_relationship').insert({
+        parent_id: parent_entity_id,
+        child_id: child_entity_id,
+        type,
+        role,
+        created_at,
+      });
 
       bar.tick();
       if (bar.complete) {
@@ -49,7 +60,9 @@ async function migrate() {
       }
     } catch (e) {
       console.log(e);
-      console.log(`Error processing stakeholder id ${stakeholder.id} ${e}`);
+      console.log(
+        `Error processing relation ${relation.parent_id} ${relation.child_id} ${e}`,
+      );
       await trx.rollback();
       process.exit(1);
     }
