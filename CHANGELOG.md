@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.1...v1.0.2) (2023-03-07)
+
+
+### Bug Fixes
+
+* update stakeholder scripts ([78ad8bf](https://github.com/Greenstand/domain-migration-scripts/commit/78ad8bf96b9c2a84f9babf326adcbf39903ff51a))
+
 ## [1.0.1](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.0...v1.0.1) (2023-02-02)
 
 
