@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.2...v1.0.3) (2023-03-23)
+
+
+### Bug Fixes
+
+* migrate stakeholder relation ([356a4b8](https://github.com/Greenstand/domain-migration-scripts/commit/356a4b8e4f51fcd0d7e90ee8008d18ebd7bd9f19))
+
 ## [1.0.2](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.1...v1.0.2) (2023-03-07)
 
 
