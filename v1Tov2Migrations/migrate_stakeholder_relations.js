@@ -47,8 +47,8 @@ async function migrate() {
       await trx.table('public.entity_relationship').insert({
         parent_id: parent_entity_id,
         child_id: child_entity_id,
-        type,
-        role,
+        type: type || 'default',
+        role: role || 'default',
         created_at,
       });
 
