@@ -1,3 +1,30 @@
+# [1.1.0](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.3...v1.1.0) (2023-05-30)
+
+
+### Bug Fixes
+
+* use captured at for tree ([00a8527](https://github.com/Greenstand/domain-migration-scripts/commit/00a85276b1883d34586f5aeebd20764db3427288))
+* use type name rather id ([4e962e8](https://github.com/Greenstand/domain-migration-scripts/commit/4e962e8f2668cfc4482c69d7867fd6a56e6f213e))
+
+
+### Features
+
+* 1642, display text ([ab63c55](https://github.com/Greenstand/domain-migration-scripts/commit/ab63c55dc9059810a1e6e0233ed4877ad812a7c1))
+* commit every round ([b4542dc](https://github.com/Greenstand/domain-migration-scripts/commit/b4542dc07b93b190ec551ce5ed78b401aa05c4c2))
+* delete ([dfb30c9](https://github.com/Greenstand/domain-migration-scripts/commit/dfb30c9e74e0781b244603f0f51f8611f4093555))
+* exclude a bad tree, avoid duplicated tag record ([33feac0](https://github.com/Greenstand/domain-migration-scripts/commit/33feac0f2bccea9bffe53451b1df03cbf92d6a37))
+* exclude some bad planter ([160a082](https://github.com/Greenstand/domain-migration-scripts/commit/160a082748bf6fac51048a6f5e88814b848b87cb))
+* queue ([7847158](https://github.com/Greenstand/domain-migration-scripts/commit/7847158e27d1f55e87df7b76c0de76e469bc8983))
+* restrain captures in freetown area ([16e4d4b](https://github.com/Greenstand/domain-migration-scripts/commit/16e4d4b2c086107d637058cdfd110e66a7bb2a48))
+* temparoryly restrain the data in fcc area ([6e4c626](https://github.com/Greenstand/domain-migration-scripts/commit/6e4c626cd0d0f825951716a523e932e3073e00c5))
+* use cpature time for created at ([bf423f3](https://github.com/Greenstand/domain-migration-scripts/commit/bf423f379f8ceb02ec3574c9646aca1aced3e765))
+
+
+### Reverts
+
+* Revert "feat: temp disable update raw_capture table, just for testing the prod data" ([f713a96](https://github.com/Greenstand/domain-migration-scripts/commit/f713a961892292aade601af1e7df012a46909408))
+* Revert "feat: temparoraly disable tags" ([e56120a](https://github.com/Greenstand/domain-migration-scripts/commit/e56120a5dd59d44ee071c3af45d77a664dcc4a6d))
+
 ## [1.0.3](https://github.com/Greenstand/domain-migration-scripts/compare/v1.0.2...v1.0.3) (2023-03-23)
 
 
