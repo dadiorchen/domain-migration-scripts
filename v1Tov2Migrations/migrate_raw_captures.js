@@ -13,14 +13,7 @@ async function migrate() {
   try {
     // filter out trees with invalid planter_id
     const base_query_string = `select t.* from public.trees t join planter p on t.planter_id = p.id left join field_data.raw_capture r on t.uuid = r.id::text 
-      where r.id is null and t.image_url is not null and (p.email is not null or p.phone is not null)
-      --and t.planting_organization_id = 1642
-      --and t.id = 29161
-      and t.planter_id NOT IN (825,1253,1214)
-      order by t.id asc
-      --offset 0
-      limit 10000
-	  `;
+      where r.id is null and t.image_url is not null and (p.email is not null or p.phone is not null)`;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );
@@ -31,8 +24,8 @@ async function migrate() {
     }
     console.log(`Migrating ${recordCount} records`);
 
-const bar = new ProgressBar('Migrating [:bar] :percent :etas :current/:total (:rate)', {
-      width: 40,
+    const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
+      width: 100,
       total: recordCount,
     });
 

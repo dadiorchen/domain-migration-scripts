@@ -3,7 +3,6 @@ const createSpecies = async ({ name, desc, uuid }, trx) => {
     id: uuid,
     scientific_name: name,
     description: desc,
-	  morphology: 'unknown',
   };
 
   await trx

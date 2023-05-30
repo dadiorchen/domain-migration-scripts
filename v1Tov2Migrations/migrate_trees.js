@@ -9,14 +9,7 @@ const createTree = require('./helper/createTree');
 async function migrate() {
   try {
     // filter out trees with invalid planter_id
-    const base_query_string = `
-    select tc.* from treetracker.capture  tc
-    join trees t
-    on tc.reference_id = t.id
-    where tree_id is null and t.planting_organization_id = 1642
-    --ofset 0
-    --limit 10000
-    `;
+    const base_query_string = `select * from treetracker.capture where tree_id is null and length(note) > 4`; // length(note) > 4 is temporary
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
     );
@@ -27,8 +20,8 @@ async function migrate() {
     }
     console.log(`Migrating ${recordCount} records`);
 
-    const bar = new ProgressBar('Migrating [:bar] :percent :etas :current/:total (:rate)', {
-      width: 40,
+    const bar = new ProgressBar('Migrating [:bar] :percent :etas', {
+      width: 100,
       total: recordCount,
     });
 
