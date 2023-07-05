@@ -23,7 +23,7 @@ async function migrate() {
 	--pt.planting_organization_id = 1642
 	order by pt.id asc
 	--offset 0
-	limit 10000
+	--limit 10000
     `;
     const rowCountResult = await knex.select(
       knex.raw(`count(1) from (${base_query_string}) as src`),
